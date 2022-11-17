@@ -1,3 +1,6 @@
+# News
+- [2022/11/17]: 这是一个对UVTR和BEVFormer实现的版本，使用的最近的mmdetection版本和PyTorch v1.12.1
+
 <div align="center">
   <img src="resources/mmdet3d-logo.png" width="600"/>
   <div>&nbsp;</div>
