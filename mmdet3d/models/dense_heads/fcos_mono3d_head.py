@@ -44,12 +44,12 @@ class FCOSMono3DHead(AnchorFreeMono3DHead):
         norm_cfg (dict, optional): dictionary to construct and config norm layer.
             Default: norm_cfg=dict(type='GN', num_groups=32, requires_grad=True).
         centerness_branch (tuple[int], optional): Channels for centerness branch.
-            Default: (64, ).
+            Default: (64, ). (-1, 64), (64, 128), (128, 256), (256, 1e8)),(-1, 48), (48, 96), (96, 192), (192, 384),
+                                 (384, INF)
     """  # noqa: E501
 
     def __init__(self,
-                 regress_ranges=((-1, 48), (48, 96), (96, 192), (192, 384),
-                                 (384, INF)),
+                 regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 1e8)),
                  center_sampling=True,
                  center_sample_radius=1.5,
                  norm_on_bbox=True,
@@ -675,9 +675,14 @@ class FCOSMono3DHead(AnchorFreeMono3DHead):
         # no scale_factors in box3d_multiclass_nms
         # Then we multiply it from outside
         mlvl_nms_scores = mlvl_scores * mlvl_centerness[:, None]
+        # results = box3d_multiclass_nms(mlvl_bboxes, mlvl_bboxes_for_nms,
+        #                                mlvl_nms_scores, cfg.score_thr,
+        #                                cfg.max_per_img, cfg, mlvl_dir_scores,
+        #                                mlvl_attr_scores)
+        # WM: FCOS适配我们自己的变量形式
         results = box3d_multiclass_nms(mlvl_bboxes, mlvl_bboxes_for_nms,
-                                       mlvl_nms_scores, cfg.score_thr,
-                                       cfg.max_per_img, cfg, mlvl_dir_scores,
+                                       mlvl_nms_scores, cfg['score_thr'],
+                                       cfg['max_per_img'], cfg, mlvl_dir_scores,
                                        mlvl_attr_scores)
         bboxes, scores, labels, dir_scores, attrs = results
         attrs = attrs.to(labels.dtype)  # change data type to int
